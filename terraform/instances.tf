@@ -14,7 +14,7 @@ resource "aws_launch_configuration" "node_conf" {
     instance_type = "${var.misc.node-type}"
     spot_price = "0.05"
     security_groups = ["${aws_security_group.cassandra-internode.id}","${aws_security_group.bastion-ingress.id}"]
-    key_name = "SpotInstanceKeyPair"
+    key_name = "${var.misc.keypair}"
 }
 
 resource "aws_autoscaling_group" "cassandra-spot-nodes" {
@@ -44,7 +44,7 @@ resource "aws_instance" "cassandra-seed" {
 	ami = "${var.amis.amzn-ami}"
 	instance_type = "${var.misc.node-type}"
 	subnet_id = "${aws_subnet.subnet-private-A.id}"
-	key_name = "SpotInstanceKeyPair"
+	key_name = "${var.misc.keypair}"
 	vpc_security_group_ids = ["${aws_security_group.cassandra-internode.id}","${aws_security_group.bastion-ingress.id}"]
 	tags {
 		Name = "Cassandra Node"
@@ -58,7 +58,7 @@ resource "aws_instance" "bastion" {
 	ami = "${var.amis.amzn-ami}"
 	instance_type = "t2.nano"
 	subnet_id = "${aws_subnet.subnet-public-A.id}"
-	key_name = "SpotInstanceKeyPair"
+	key_name = "${var.misc.keypair}"
 	vpc_security_group_ids = ["${aws_security_group.bastion.id}"]
 	tags {
 		Name = "Bastion Host"

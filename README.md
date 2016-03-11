@@ -38,3 +38,9 @@ The terraform script will provision:
 - 3x spot m4.xlarge cassandra seed instances in a private subnet
 
 *You will be charged* for the above resources. Spot instances are used to minimise the cost and you may adjust the instance types as required in terraform/variables.tf.
+
+### TODO
+
+Resolve issue with directory permissions preventing first-time start up for Cassandra
+Rationalise / combine / simplify inv-gen.sh and inv-gen.rb
+Add some kind of functional validation that Cassandra is up and running

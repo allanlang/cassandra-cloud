@@ -11,4 +11,4 @@ nodes
 
 [cassandra:vars]
 ansible_user=vagrant
-ansible_ssh_private_key_file=/Users/allanlang/.vagrant.d/insecure_private_key
+ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key

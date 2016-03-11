@@ -8,5 +8,6 @@ variable "amis" {
 variable "misc" {
     default = {
         "node-type" = "m4.xlarge"
+        "keypair" = "SpotInstanceKeyPair"
     }
 }
