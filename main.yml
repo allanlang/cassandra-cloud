@@ -1,0 +1,70 @@
+---
+- hosts: cassandra
+  name: global configuration
+  gather_facts: true
+  become: true
+  vars:
+    cassandra_version: 3.3
+    cassandra_user_group: cassandra
+    cassandra_cluster_name: demo-cluster
+
+  tasks:
+  - name: Install updates
+    yum: name=* state=latest
+  - name: Removed unwanted packages
+    package: name={{ item }} state=absent
+    with_items:
+      - java-1.7.0-openjdk
+  - name: Install common packages
+    package: name={{ item }}
+    with_items:
+      - java-1.8.0-openjdk
+  - name: Create group
+    group: name={{ cassandra_user_group }}
+  - name: Create user
+    user: name={{ cassandra_user_group }} group={{ cassandra_user_group }}
+  - name: Create directories
+    file: path={{ item }} state=directory owner={{ cassandra_user_group }} group={{ cassandra_user_group }} recurse=yes
+    with_items:
+      - /opt/cassandra
+      - /var/lib/cassandra/data
+      - /var/log/cassandra/commitlog
+  - name: Fetch and unpack Cassandra distribution
+    unarchive:
+      dest: /opt/cassandra
+      copy: no
+      src: "http://mirror.ox.ac.uk/sites/rsync.apache.org/cassandra/{{ cassandra_version }}/apache-cassandra-{{ cassandra_version }}-bin.tar.gz"
+      owner: "{{ cassandra_user_group }}"
+      group: "{{ cassandra_user_group }}"
+      creates: "/opt/cassandra/apache-cassandra-{{ cassandra_version }}/bin/cassandra"
+  - name: Fix directory permissions
+    file: path=/opt/cassandra owner={{ cassandra_user_group }} group={{ cassandra_user_group }}
+  - name: Configure hosts file entries
+    lineinfile: dest=/etc/hosts line="{{ hostvars[item]['ansible_host'] }} {{ item }}"
+    with_items: "{{ groups['cassandra'] }}"
+  - name: Update cassandra configuration
+    template:
+      dest: "/opt/cassandra/apache-cassandra-{{ cassandra_version }}/conf/cassandra.yaml"
+      owner: "{{ cassandra_user_group }}"
+      group: "{{ cassandra_user_group }}"
+      src: templates/cassandra.yaml.tmpl
+  - name: Configure topology file
+    template:
+      dest: "/opt/cassandra/apache-cassandra-{{ cassandra_version }}/conf/cassandra-topology.properties"
+      owner: "{{ cassandra_user_group }}"
+      group: "{{ cassandra_user_group }}"
+      src: templates/cassandra-topology.properties.tmpl
+  - name: Template systemd service file
+    template:
+      dest: /usr/lib/systemd/system/cassandra.service
+      src: templates/cassandra.service.tmpl
+    when: ansible_service_mgr == 'systemd'
+# Credits https://gist.github.com/sgomezvillamor/5458309
+  - name: Template init.d script
+    template:
+      dest: /etc/init.d/cassandra
+      src: templates/init.d.tmpl
+      mode: 0755
+    when: ansible_service_mgr != 'systemd'
+  - name: Start cassandra service
+    service: name=cassandra state=started enabled=yes
