@@ -7,6 +7,7 @@
     cassandra_version: 3.3
     cassandra_user_group: cassandra
     cassandra_cluster_name: demo-cluster
+    cassandra_snitch: GossipingPropertyFileSnitch
 
   tasks:
   - name: Install updates
@@ -19,16 +20,19 @@
     package: name={{ item }}
     with_items:
       - java-1.8.0-openjdk
+
   - name: Create group
     group: name={{ cassandra_user_group }}
   - name: Create user
     user: name={{ cassandra_user_group }} group={{ cassandra_user_group }}
+
   - name: Create directories
     file: path={{ item }} state=directory owner={{ cassandra_user_group }} group={{ cassandra_user_group }} recurse=yes
     with_items:
       - /opt/cassandra
       - /var/lib/cassandra/data
       - /var/log/cassandra/commitlog
+
   - name: Fetch and unpack Cassandra distribution
     unarchive:
       dest: /opt/cassandra
@@ -37,23 +41,28 @@
       owner: "{{ cassandra_user_group }}"
       group: "{{ cassandra_user_group }}"
       creates: "/opt/cassandra/apache-cassandra-{{ cassandra_version }}/bin/cassandra"
+
   - name: Fix directory permissions
     file: path=/opt/cassandra owner={{ cassandra_user_group }} group={{ cassandra_user_group }}
+
   - name: Configure hosts file entries
     lineinfile: dest=/etc/hosts line="{{ hostvars[item]['ansible_host'] }} {{ item }}"
     with_items: "{{ groups['cassandra'] }}"
+
   - name: Update cassandra configuration
     template:
       dest: "/opt/cassandra/apache-cassandra-{{ cassandra_version }}/conf/cassandra.yaml"
       owner: "{{ cassandra_user_group }}"
       group: "{{ cassandra_user_group }}"
       src: templates/cassandra.yaml.tmpl
-  - name: Configure topology file
+
+  - name: Configure rackdc file
     template:
-      dest: "/opt/cassandra/apache-cassandra-{{ cassandra_version }}/conf/cassandra-topology.properties"
+      dest: "/opt/cassandra/apache-cassandra-{{ cassandra_version }}/conf/cassandra-rackdc.properties"
       owner: "{{ cassandra_user_group }}"
       group: "{{ cassandra_user_group }}"
-      src: templates/cassandra-topology.properties.tmpl
+      src: templates/cassandra-rackdc.properties.tmpl
+
   - name: Template systemd service file
     template:
       dest: /usr/lib/systemd/system/cassandra.service
@@ -66,5 +75,6 @@
       src: templates/init.d.tmpl
       mode: 0755
     when: ansible_service_mgr != 'systemd'
+
   - name: Start cassandra service
     service: name=cassandra state=started enabled=yes

@@ -11,7 +11,7 @@ CASS_HOME=/opt/cassandra/apache-cassandra-{{ cassandra_version }}
 CASS_BIN=$CASS_HOME/bin/cassandra
 CASS_LOG=$CASS_HOME/../log/system.log
 CASS_USER="{{ cassandra_user_group }}"
-CASS_PID=/var/run/cassandra.pid
+CASS_PID=/var/lib/cassandra/cassandra.pid
  
 if [ ! -f $CASS_BIN ]; then
   echo "File not found: $CASS_BIN"

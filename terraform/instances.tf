@@ -21,8 +21,8 @@ resource "aws_autoscaling_group" "cassandra-spot-nodes" {
     vpc_zone_identifier = ["${aws_subnet.subnet-private-A.id}"]
     name = "cassandra-autoscaling"
     launch_configuration = "${aws_launch_configuration.node_conf.name}"
-    max_size = 3
-    min_size = 3
+    max_size = "${var.misc.spot-count}"
+    min_size = "${var.misc.spot-count}"
     tag {
         key = "Name"
         value = "Cassandra Node"

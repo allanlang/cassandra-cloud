@@ -9,5 +9,6 @@ variable "misc" {
     default = {
         "node-type" = "m4.xlarge"
         "keypair" = "SpotInstanceKeyPair"
+        "spot-count" = 2
     }
 }
