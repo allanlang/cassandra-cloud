@@ -1,3 +1,4 @@
 *.retry
 inventory-aws.txt
 credentials.tf
+inventory-gce.txt

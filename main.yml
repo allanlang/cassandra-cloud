@@ -43,7 +43,7 @@
       creates: "/opt/cassandra/apache-cassandra-{{ cassandra_version }}/bin/cassandra"
 
   - name: Fix directory permissions
-    file: path=/opt/cassandra owner={{ cassandra_user_group }} group={{ cassandra_user_group }}
+    file: path=/opt/cassandra/apache-cassandra-{{ cassandra_version }} owner={{ cassandra_user_group }} group={{ cassandra_user_group }}
 
   - name: Configure hosts file entries
     lineinfile: dest=/etc/hosts line="{{ hostvars[item]['ansible_host'] }} {{ item }}"
