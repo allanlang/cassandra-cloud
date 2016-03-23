@@ -30,7 +30,9 @@ You should also set your credentials in the AWS_SECRET_ACCESS_KEY and AWS_ACCESS
 
     cd terraform
     terraform apply
-    ./inv-gen.sh
+    cd ..
+    ruby inv-gen-aws.sh > inventory-aws.txt
+    ansible -i inventory-gce.txt -m ping all
     ansible-playbook -i inventory-aws.txt main.yml
 
 The terraform script will provision:
@@ -80,7 +82,39 @@ The terraform script will provision:
 
 *You will be charged* for the above resources. Preemptible instances are used to minimise the cost and you may adjust the instance types as required by modifying the appropriate .tf files.
 
-### TODO
+## Checking Cassandra cluster status
 
-Rationalise / combine / simplify inv-gen.sh and inv-gen.rb
-Add some kind of functional validation that Cassandra is up and running
+SSH to one of the cassandra nodes (shouldn't matter which) either directly (for Vagrant):
+
+    vagrant ssh node1
+
+or via the bastion host, for AWS:
+
+    ssh-add PATH_TO_SSH_KEY
+    ssh -A ec2-user@BASTION_PUBLIC_IP
+    ssh NODE_IP
+
+or via the bastion host, for GCE:
+
+    ssh-add PATH_TO_SSH_KEY
+    ssh -A cassandra@BASTION_PUBLIC_IP
+    ssh NODE_IP
+
+Once connected, switch to the cassandra user (if not already) then:
+
+    cd /opt/cassandra/apache-cassandra-3.3
+    bin/nodetool status
+
+You should hopefully see all of the nodes as members of the cluster, similar to the following:
+
+    [cassandra@cassandra-node-seed apache-cassandra-3.3]$ bin/nodetool status
+    Datacenter: europe-west1
+    ========================
+    Status=Up/Down
+    |/ State=Normal/Leaving/Joining/Moving
+    --  Address    Load       Tokens       Owns    Host ID                               Rack
+    UN  10.0.10.2  112.05 KB  256          ?       e14f0945-07ed-4dc7-aee0-3c1bf41588e8  europe-west1-b
+    UN  10.0.10.3  15.31 KB   256          ?       b40802b3-0986-40c7-8488-4149b3f62fa0  europe-west1-b
+    UN  10.0.10.4  96.92 KB   256          ?       2103dd56-b3a9-4eae-a7bd-362c2fa8e7bd  europe-west1-b
+
+    Note: Non-system keyspaces don't have the same replication settings, effective ownership information is meaningless
