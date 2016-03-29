@@ -32,7 +32,7 @@ You should also set your credentials in the AWS_SECRET_ACCESS_KEY and AWS_ACCESS
     terraform apply
     cd ..
     ruby inv-gen-aws.sh > inventory-aws.txt
-    ansible -i inventory-gce.txt -m ping all
+    ansible -i inventory-aws.txt -m ping all
     ansible-playbook -i inventory-aws.txt main.yml
 
 The terraform script will provision:
