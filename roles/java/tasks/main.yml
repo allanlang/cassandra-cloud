@@ -1,0 +1,9 @@
+---
+- name: Removed unwanted packages
+  package: name={{ item }} state=absent
+  with_items:
+    - java-1.7.0-openjdk
+- name: Install common packages
+  package: name={{ item }}
+  with_items:
+    - java-1.8.0-openjdk
