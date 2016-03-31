@@ -1,0 +1,9 @@
+---
+- hosts: cassandra-node-seed
+  gather_facts: true
+  become: true
+  vars:
+
+  tasks:
+  - name: Copy data file
+    copy: dest=/opt/cassandra/pp-2008.txt src=~/Downloads/pp-2008.txt

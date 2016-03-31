@@ -2,3 +2,4 @@
 inventory-aws.txt
 credentials.tf
 inventory-gce.txt
+roles/datadog/vars/main.yml

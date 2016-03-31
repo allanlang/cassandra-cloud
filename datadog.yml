@@ -1,0 +1,8 @@
+---
+- hosts: all
+  name: global configuration
+  gather_facts: true
+  become: true
+
+  roles:
+    - datadog
