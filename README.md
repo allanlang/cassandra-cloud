@@ -18,7 +18,7 @@ You will need account credentials with privileges to create VPCs and EC2 instanc
 
 You will also need:
 
-`terraform/credentials.tf` looking something like this:
+`terraform-aws/credentials.tf` looking something like this:
 
     provider "aws" {
         access_key = "YOUR ACCESS KEY"
@@ -26,13 +26,13 @@ You will also need:
         region = "TARGET REGION"
     }
 
-You should also set your credentials in the AWS_SECRET_ACCESS_KEY and AWS_ACCESS_KEY_ID environment variables before running the inv-gen.sh script.
+You should also set your credentials in the AWS_SECRET_ACCESS_KEY and AWS_ACCESS_KEY_ID environment variables, and `ssh-add` your AWS private key before running the `inv-gen-aws.sh` script or playbooks.
 
     cd terraform
     terraform apply
     cd ..
     ruby inv-gen-aws.sh > inventory-aws.txt
-    ansible -i inventory-gce.txt -m ping all
+    ansible -i inventory-aws.txt -m ping all
     ansible-playbook -i inventory-aws.txt main.yml
 
 The terraform script will provision:
@@ -44,7 +44,7 @@ The terraform script will provision:
 - 1x on-demand m4.xlarge cassandra seed node in a private subnet
 - 3x spot m4.xlarge cassandra seed instances in a private subnet
 
-*You will be charged* for the above resources. Spot instances are used to minimise the cost and you may adjust the instance types as required in terraform/variables.tf.
+*You will be charged* for the above resources. Spot instances are used to minimise the cost and you may adjust the instance types as required in `terraform-aws/variables.tf`.
 
 ## Google Compute Engine (GCE)
 
@@ -80,7 +80,7 @@ The terraform script will provision:
 - 1x non-preemptible n1-standard-2 cassandra seed node in the private subnetwork with local SSD storage
 - 2x preemptible cassandra nodes in the private subnetwork with local SSD storage
 
-*You will be charged* for the above resources. Preemptible instances are used to minimise the cost and you may adjust the instance types as required by modifying the appropriate .tf files.
+*You will be charged* for the above resources. Preemptible instances are used to minimise the cost and you may adjust the instance types as required by modifying the appropriate `.tf` files.
 
 ## Checking Cassandra cluster status
 
