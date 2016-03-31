@@ -3,50 +3,6 @@
   name: global configuration
   gather_facts: true
   become: true
-  vars:
-    datadog_api_key: d916b3a5eaf33da0746f827a8b500962
 
-  tasks:
-# RedHat repo setup
-  - name: Install updates (RedHat)
-    yum: name=* state=latest
-    when: ansible_os_family == "RedHat"
-  - name: Add repository
-    template:
-      dest: "/etc/yum.repos.d/datadog.repo"
-      src: templates/datadog_repo.tmpl
-    when: ansible_os_family == "RedHat"
-# Debian repo setup
-  - name: Install updates (Debian)
-    apt: update_cache=yes upgrade=yes
-    when: ansible_os_family == "Debian"
-  - name: Install https transport for apt
-    apt: name=apt-transport-https
-    when: ansible_os_family == "Debian"
-  - name: Install datadog repository (Debian)
-    apt_repository: repo='deb https://apt.datadoghq.com/ stable main' state=present
-    when: ansible_os_family == "Debian"
-  - name: Install datadog repo apt key
-    apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=C7A7DA52
-    when: ansible_os_family == "Debian"
-# Generic install steps
-  - name: Purge older agent
-    package: name=datadog-agent-base state=absent update_cache=yes
-  - name: Install DD Agent
-    package: name=datadog-agent
-  - name: Template datadog config
-    template:
-      dest: /etc/dd-agent/datadog.conf
-      src: templates/datadog.conf.tmpl
-    notify: restart datadog
-  - name: Template cassandra config
-    template:
-      dest: /etc/dd-agent/conf.d/cassandra.yaml
-      src: templates/datadog_cassandra.yml.tmpl
-    notify: restart datadog
-  - name: Start the agent
-    service: name=datadog-agent state=started
-
-  handlers:
-  - name: restart datadog
-    service: name=datadog-agent state=restarted
+  roles:
+    - datadog
