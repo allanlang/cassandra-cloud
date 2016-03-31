@@ -1,0 +1,7 @@
+---
+- name: Install updates (RHEL)
+  yum: name=* state=latest update_cache=yes
+  when: ansible_os_family == "RedHat"
+- name: Install updates (Debian)
+  apt: name=* state=latest update_cache=yes
+  when: ansible_os_family == "Debian"
